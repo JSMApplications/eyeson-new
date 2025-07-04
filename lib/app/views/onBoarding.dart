@@ -5,6 +5,7 @@ import 'package:eyeson/app/widgets/onBoardingScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class OnBoarding extends StatefulWidget {
@@ -96,9 +97,11 @@ class _OnBoardingState extends State<OnBoarding> {
                 SmoothPageIndicator(controller: _controller, count: 3),
                 SizedBox(height: 20),
                 OnBoardingButton(
-                  onTap: () {
+                  onTap: () async {
                     if (onLastPage) {
-                      // Navigate to next screen
+                      SharedPreferences sharedPreferences =
+                          await SharedPreferences.getInstance();
+                      await sharedPreferences.setBool("@isIntro", true);
                       Get.toNamed(AppRoutesPath.HOME);
                     } else {
                       // To next screen

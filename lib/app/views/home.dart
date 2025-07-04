@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -50,15 +51,17 @@ class _HomeState extends State<Home> {
   Controller controller = Get.put(Controller());
   bool hasLocationPermission = false;
   Position? currentPosition;
+  bool? isLocation;
 
   Future<void> _handleLocationAccess() async {
     final status = await Permission.location.request();
-
     if (status.isGranted) {
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      await sharedPreferences.setBool("@isLocation", true);
       setState(() {
         hasLocationPermission = true;
         currentPosition = position;
@@ -70,6 +73,21 @@ class _HomeState extends State<Home> {
         const SnackBar(content: Text("Location permission denied")),
       );
     }
+  }
+
+  @override
+  void initState() {
+    checkLocation();
+    _handleLocationAccess();
+    super.initState();
+  }
+
+  Future<void> checkLocation() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    bool isLocation = sharedPreferences.getBool("@isLocation") ?? false;
+    setState(() {
+      this.isLocation = isLocation;
+    });
   }
 
   @override
@@ -88,61 +106,60 @@ class _HomeState extends State<Home> {
               child: Stack(
                 children: [
                   Center(
-                    child: hasLocationPermission && currentPosition != null
-                        ? GoogleMap(
-                            initialCameraPosition: CameraPosition(
-                              target: LatLng(
-                                currentPosition!.latitude,
-                                currentPosition!.longitude,
-                              ),
-                              zoom: 16,
-                            ),
-                            myLocationEnabled: true,
-                            markers: {
-                              Marker(
-                                markerId: const MarkerId("currentLocation"),
-                                position: LatLng(
-                                  currentPosition!.latitude,
-                                  currentPosition!.longitude,
+                    child: isLocation == null
+                        ? Center(child: CircularProgressIndicator())
+                        : hasLocationPermission && currentPosition != null
+                            ? GoogleMap(
+                                initialCameraPosition: CameraPosition(
+                                  target: LatLng(
+                                    currentPosition!.latitude,
+                                    currentPosition!.longitude,
+                                  ),
+                                  zoom: 16,
                                 ),
-                                infoWindow:
-                                    const InfoWindow(title: "You are here"),
-                              ),
-                            },
-                          )
-                        : Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // Image.asset(
-                              //   "assets/logo.gif",
-                              //   fit: BoxFit.contain,
-                              // ),
-                              Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: GestureDetector(
-                                  onTap: _handleLocationAccess,
-                                  child: Container(
-                                    width: size.width,
-                                    height: size.height * 0.07,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12),
-                                      color: AppTheme.themeColor,
+                                myLocationEnabled: true,
+                                markers: {
+                                  Marker(
+                                    markerId: const MarkerId("currentLocation"),
+                                    position: LatLng(
+                                      currentPosition!.latitude,
+                                      currentPosition!.longitude,
                                     ),
-                                    child: Center(
-                                      child: Text(
-                                        "Allow access to your location",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: AppTheme.whiteColor,
-                                          fontSize: size.width * 0.05,
+                                    infoWindow:
+                                        const InfoWindow(title: "You are here"),
+                                  ),
+                                },
+                              )
+                            : Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: GestureDetector(
+                                      onTap: _handleLocationAccess,
+                                      child: Container(
+                                        width: size.width,
+                                        height: size.height * 0.07,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          color: AppTheme.themeColor,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "Allow access to your location",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: AppTheme.whiteColor,
+                                              fontSize: size.width * 0.05,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
+                                ],
                               ),
-                            ],
-                          ),
                   ),
                   Positioned(
                     top: 0,
