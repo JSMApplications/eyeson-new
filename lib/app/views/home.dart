@@ -51,28 +51,64 @@ class _HomeState extends State<Home> {
   Controller controller = Get.put(Controller());
   bool hasLocationPermission = false;
   Position? currentPosition;
+
   bool? isLocation;
 
   Future<void> _handleLocationAccess() async {
-    final status = await Permission.location.request();
-    if (status.isGranted) {
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      SharedPreferences sharedPreferences =
-          await SharedPreferences.getInstance();
-      await sharedPreferences.setBool("@isLocation", true);
-      setState(() {
-        hasLocationPermission = true;
-        currentPosition = position;
-        controller.currentPosition =
-            LatLng(position.latitude, position.longitude);
-      });
-    } else {
+    final isServiceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!isServiceEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Location permission denied")),
+        const SnackBar(content: Text("Location services are disabled")),
       );
+      return;
     }
+
+    // Check current permission status
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('❌ Location permission denied.')));
+        return;
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('❌ Location permission permanently denied.')));
+      return;
+    }
+
+    final position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.setBool("@isLocation", true);
+
+    setState(() {
+      hasLocationPermission = true;
+      currentPosition = position;
+      controller.currentPosition =
+          LatLng(position.latitude, position.longitude);
+    });
+    // if (status.isGranted) {
+    //   final position = await Geolocator.getCurrentPosition(
+    //     desiredAccuracy: LocationAccuracy.high,
+    //   );
+    //   SharedPreferences sharedPreferences =
+    //       await SharedPreferences.getInstance();
+    //   await sharedPreferences.setBool("@isLocation", true);
+    //   setState(() {
+    //     hasLocationPermission = true;
+    //     currentPosition = position;
+    //     controller.currentPosition =
+    //         LatLng(position.latitude, position.longitude);
+    //   });
+    // } else {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(content: Text("Location permission denied")),
+    //   );
+    // }
   }
 
   @override

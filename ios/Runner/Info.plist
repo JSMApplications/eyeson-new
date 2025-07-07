@@ -45,29 +45,29 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need access to your location at all times to provide accurate, real-time tracking of your food delivery.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Your location is used to show nearby delivery zones and enable real-time tracking of your orders on the map, even when the app is in the background.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We use your location to show nearby restaurants and deliver food to your current address.</string>
+	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+	<dict>
+		<key>LocationForDeliveryTracking</key>
+		<string>We use your location temporarily to calculate the estimated delivery time and to show your delivery's AR tracking on the map.</string>
+	</dict>
+	<key>UIBackgroundModes</key>
+	<array>
+	<string>location</string>
+	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>This app requires access to the camera to allow users to take photos.</string>
+	<key>NSMicrophoneUsageDescription</key>
+    <string>This app requires access to the microphone to record audio.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 	</dict>
-
-	
-<key>NSLocationAlwaysUsageDescription</key>
-<string>We need access to your location at all times to provide accurate, real-time tracking of your food delivery.</string>
-
-<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-<string>Your location is used to show nearby delivery zones and enable real-time tracking of your orders on the map, even when the app is in the background.</string>
-
-<key>NSLocationWhenInUseUsageDescription</key>
-<string>We use your location to show nearby restaurants and deliver food to your current address.</string>
-
-<key>NSLocationTemporaryUsageDescriptionDictionary</key>
-<dict>
-    <key>LocationForDeliveryTracking</key>
-    <string>We use your location temporarily to calculate the estimated delivery time and to show your delivery's AR tracking on the map.</string>
-</dict>
 </dict>
 </plist>
