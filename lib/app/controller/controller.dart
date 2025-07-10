@@ -70,7 +70,7 @@ class Controller extends GetxController {
 
   Future<void> getYelpData(String search) async {
     final dio = Dio();
-    String qurey = currentPosition.latitude == 0
+    String qurey = currentPosition.latitude != 0
         ? 'latitude=${currentPosition.latitude}&longitude=${currentPosition.longitude}'
         : 'location=New York City';
     print(qurey);
