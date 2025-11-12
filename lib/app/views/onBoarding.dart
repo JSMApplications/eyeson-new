@@ -43,21 +43,24 @@ class _OnBoardingState extends State<OnBoarding> {
             children: [
               // on-Boarding-Screen
               OnBoardingScreen(
-                imagePath: "assets/onBroad.gif",
+                imageHeight: false,
+                imagePath: "assets/sp2.png",
                 title: "Discover restaurants on the go",
                 subTitle:
                     "You can instantly search, browse and buy or buy best Restaurants all over",
               ),
               // on-Boarding-Screen
               OnBoardingScreen(
-                imagePath: "assets/scantranslate.gif",
+                imageHeight: true,
+                imagePath: "assets/sp1.png",
                 title: "Scan and translate text anything anytime",
                 subTitle:
                     "You can instantly search, browse and buy or buy best Restaurants all over",
               ),
               // on-Boarding-Screen
               OnBoardingScreen(
-                imagePath: "assets/searchanimation.gif",
+                imageHeight: true,
+                imagePath: "assets/sp3.png",
                 title: "Search what you see",
                 subTitle:
                     "You can instantly search, browse and buy or buy best Restaurants all over",
@@ -94,8 +97,6 @@ class _OnBoardingState extends State<OnBoarding> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                SmoothPageIndicator(controller: _controller, count: 3),
-                SizedBox(height: 20),
                 OnBoardingButton(
                   onTap: () async {
                     if (onLastPage) {
@@ -113,6 +114,9 @@ class _OnBoardingState extends State<OnBoarding> {
                   },
                   btn_name: onLastPage ? "Done" : "Next",
                 ),
+                SizedBox(height: 10),
+                SmoothPageIndicator(controller: _controller, count: 3),
+                SizedBox(height: 20),
               ],
             ),
           ),
