@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:eyeson/app/controller/splash_controller.dart';
 import 'package:eyeson/app/routes/app_routes.dart';
 import 'package:eyeson/app/themes/apptheme.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -11,7 +12,7 @@ late List<CameraDescription> cameras;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-
+  await Firebase.initializeApp();
   cameras = await availableCameras();
   runApp(const MyApp());
 }

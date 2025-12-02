@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "464702258818",
+    "project_id": "eyeson-1808f",
+    "storage_bucket": "eyeson-1808f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:464702258818:android:258372aa1de216b5c93e9b",
+        "android_client_info": {
+          "package_name": "com.softgrid.eyeson"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "464702258818-elgb29ca5lbu6ud3kvvh53nku2j0f4qd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtf4YStpEL9oituVTsJu5k4_kHDvF1X4g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "464702258818-elgb29ca5lbu6ud3kvvh53nku2j0f4qd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

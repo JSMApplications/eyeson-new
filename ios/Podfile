@@ -38,7 +38,31 @@ target 'Runner' do
 end
 
 post_install do |installer|
+  # This block is required for standard Flutter setup
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
   end
+  
+  # --- START FIX FOR GoogleUtilities/Environment CONFLICT ---
+  # The conflicting dependency is GoogleUtilities/Environment, which needs (~> 8.0) 
+  # for GoogleSignIn but lower versions for Firebase. We explicitly force it to 8.x.
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      # Force GoogleUtilities to version 8.x if the project is using it
+      if target.name == 'GoogleUtilities' || target.name.start_with?('Firebase') || target.name.start_with?('GoogleSignIn')
+         config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+         config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'COCOAPODS=1'
+      end
+    end
+  end
+  
+  # Explicitly resolve the conflicting subspec
+  installer.pods_project.targets.each do |target|
+    if target.name.include?('GoogleUtilities')
+      target.build_configurations.each do |config|
+        config.build_settings['GOOGLE_UTILITIES_VERSION'] = '8.0' 
+      end
+    end
+  end
+  # --- END FIX ---
 end

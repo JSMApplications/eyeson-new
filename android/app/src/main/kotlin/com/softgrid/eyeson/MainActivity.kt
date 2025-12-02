@@ -1,4 +1,4 @@
-package com.example.eyeson
+package com.softgrid.eyeson
 
 import io.flutter.embedding.android.FlutterActivity
 

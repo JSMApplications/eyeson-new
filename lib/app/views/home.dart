@@ -1,14 +1,17 @@
 import 'package:eyeson/app/controller/controller.dart';
 import 'package:eyeson/app/routes/app_routes.dart';
 import 'package:eyeson/app/themes/apptheme.dart';
+import 'package:eyeson/app/views/login.dart';
 import 'package:eyeson/app/views/mexicanRestaurantDetails.dart';
 import 'package:eyeson/main.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'profile_page.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -51,8 +54,9 @@ class _HomeState extends State<Home> {
   Controller controller = Get.put(Controller());
   bool hasLocationPermission = false;
   Position? currentPosition;
-
   bool? isLocation;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? currentUser;
 
   Future<void> _handleLocationAccess() async {
     final isServiceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -115,7 +119,13 @@ class _HomeState extends State<Home> {
   void initState() {
     checkLocation();
     _handleLocationAccess();
+    _checkCurrentUser();
     super.initState();
+  }
+
+  void _checkCurrentUser() {
+    currentUser = _auth.currentUser;
+    setState(() {});
   }
 
   Future<void> checkLocation() async {
@@ -206,12 +216,25 @@ class _HomeState extends State<Home> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Image.asset(
-                        "assets/logo.gif",
-                        fit: BoxFit.contain,
-                        width: Get.width,
-                        height: Get.height * 0.1,
-                        alignment: Alignment.center,
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            "assets/logo.gif",
+                            fit: BoxFit.contain,
+                            width: Get.width * 0.9,
+                            height: Get.height * 0.1,
+                            alignment: Alignment.center,
+                          ),
+                          GestureDetector(
+                              onTap: () {
+                                if (currentUser == null) {
+                                  Get.to(() => LoginPage());
+                                } else {
+                                  Get.to(() => ProfilePage());
+                                }
+                              },
+                              child: Icon(Icons.account_circle, size: 30))
+                        ],
                       ),
                     ),
                   ),
