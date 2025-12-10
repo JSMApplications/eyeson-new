@@ -14,6 +14,7 @@ Future<void> main() async {
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   await Firebase.initializeApp();
   cameras = await availableCameras();
+
   runApp(const MyApp());
 }
 
