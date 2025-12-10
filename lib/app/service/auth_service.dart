@@ -31,13 +31,12 @@ class AuthService {
   // Google Login
   Future<UserCredential?> loginWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAccount? googleUser =
+          await GoogleSignIn.instance.authenticate();
       if (googleUser == null) return null;
-
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
+        // accessToken: googleAuth,
         idToken: googleAuth.idToken,
       );
       return await FirebaseAuth.instance.signInWithCredential(credential);
@@ -52,7 +51,7 @@ class AuthService {
       final LoginResult result = await FacebookAuth.instance.login();
       if (result.status == LoginStatus.success) {
         final OAuthCredential facebookCredential =
-            FacebookAuthProvider.credential(result.accessToken!.token);
+            FacebookAuthProvider.credential(result.accessToken!.tokenString);
         return await _auth.signInWithCredential(facebookCredential);
       }
       return null;

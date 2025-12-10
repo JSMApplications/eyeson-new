@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:eyeson/app/routes/app_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -43,9 +45,7 @@ class Controller extends GetxController {
       );
 
       final data = response.data;
-      print(data);
       List<String> ocrLines = [];
-
       if (data["readResult"] != null && data["readResult"]["blocks"] != null) {
         for (var block in data["readResult"]["blocks"]) {
           if (block["lines"] != null) {
@@ -57,10 +57,9 @@ class Controller extends GetxController {
       }
 
       extractedText.value = ocrLines.join('\n');
-      print(ocrLines.join('\n'));
-      getYelpData(ocrLines.join('\n'));
+      // getYelpData(ocrLines.join('\n'));
+      loadJsonAndSearch(ocrLines.join('\n'));
     } catch (e) {
-      print('Error: $e');
       extractedText.value = '❌ Failed to analyze image.';
     } finally {
       loading.value = false;
@@ -68,36 +67,72 @@ class Controller extends GetxController {
     update();
   }
 
-  Future<void> getYelpData(String search) async {
-    final dio = Dio();
-    String qurey = currentPosition.latitude != 0
-        ? 'latitude=${currentPosition.latitude}&longitude=${currentPosition.longitude}'
-        : 'location=New York City';
-    print(qurey);
+  Future<void> loadJsonAndSearch(String search) async {
     try {
-      final response = await dio.get(
-          'https://api.yelp.com/v3/businesses/search?${qurey}&term=${search}',
-          options: Options(
-            headers: {
-              "Authorization":
-                  "Bearer MGegcpYYc20n3uQgMO70KWPAQ07RfWAd5KG9-pcyUJ_ga3p2qZIHLXumHu8VFWLbxjkGDKsup5rpGyzx7Y8WIviNnUQAqdc8PTxUPh7cQJtq9qrExzqN5S-vm8RFaHYx",
-              'accept': 'application/json',
-            },
-          ));
+      final String response = await rootBundle.loadString('assets/data.json');
+      final Map<String, dynamic> jsonData = json.decode(response);
 
-      if (response.statusCode == 200) {
-        resData.assignAll(response.data['businesses']);
-      }
-      Get.back();
-      Get.back();
+      // Agar single business object hai
+      List businesses = jsonData.containsKey('businesses')
+          ? jsonData['businesses']
+          : [jsonData];
+
+      // Search filter (name, category title, city)
+      var filtered = businesses.where((b) {
+        final name = b['name'].toString().toLowerCase();
+        final city = b['location']['city'].toString().toLowerCase();
+        final categories = (b['categories'] as List)
+            .map((c) => c['title'].toString().toLowerCase())
+            .join(' ');
+
+        final term = search.toLowerCase();
+        return name.contains(term) ||
+            city.contains(term) ||
+            categories.contains(term);
+      }).toList();
+
+      resData.assignAll(filtered);
     } catch (e) {
       Get.showSnackbar(GetSnackBar(
         title: "Error",
-        message: "Please restart the app & try again",
+        message: "Failed to load JSON: $e",
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
       ));
       print('Error: $e');
     }
   }
+
+  // Future<void> getYelpData(String search) async {
+  //   final dio = Dio();
+  //   String qurey = currentPosition.latitude != 0
+  //       ? 'latitude=${currentPosition.latitude}&longitude=${currentPosition.longitude}'
+  //       : 'location=New York City';
+  //   print(qurey);
+  //   try {
+  //     final response = await dio.get(
+  //         'https://api.yelp.com/v3/businesses/search?${qurey}&term=${search}',
+  //         options: Options(
+  //           headers: {
+  //             "Authorization":
+  //                 "Bearer MGegcpYYc20n3uQgMO70KWPAQ07RfWAd5KG9-pcyUJ_ga3p2qZIHLXumHu8VFWLbxjkGDKsup5rpGyzx7Y8WIviNnUQAqdc8PTxUPh7cQJtq9qrExzqN5S-vm8RFaHYx",
+  //             'accept': 'application/json',
+  //           },
+  //         ));
+
+  //     if (response.statusCode == 200) {
+  //       resData.assignAll(response.data['businesses']);
+  //     }
+  //     Get.back();
+  //     Get.back();
+  //   } catch (e) {
+  //     Get.showSnackbar(GetSnackBar(
+  //       title: "Error",
+  //       message: "Please restart the app & try again",
+  //       snackPosition: SnackPosition.BOTTOM,
+  //       backgroundColor: Colors.red,
+  //     ));
+  //     print('Error: $e');
+  //   }
+  // }
 }
