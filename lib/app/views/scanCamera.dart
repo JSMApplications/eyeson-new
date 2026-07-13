@@ -60,8 +60,101 @@ class _ScanCameraState extends State<ScanCamera> {
       // Send image path to the next screen or upload
       // await getController.analyzeImage(File(image.path));
       // Show modal with image preview
-      Get.dialog(Center(child: CircularProgressIndicator()));
+      Get.dialog(
+        Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 15,
+                  spreadRadius: 2,
+                )
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Obx(() {
+                  if (getController.isAIThinking.value) {
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SizedBox(
+                          width: 80,
+                          height: 80,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                AppTheme.themeColor),
+                          ),
+                        ),
+                        const Icon(Icons.psychology,
+                            size: 40, color: AppTheme.themeColor),
+                      ],
+                    );
+                  } else if (getController.isSearching.value) {
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SizedBox(
+                          width: 80,
+                          height: 80,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.green),
+                          ),
+                        ),
+                        const Icon(Icons.search, size: 40, color: Colors.green),
+                      ],
+                    );
+                  } else {
+                    return const CircularProgressIndicator();
+                  }
+                }),
+                const SizedBox(height: 25),
+                Obx(() => Text(
+                      getController.statusMessage.value,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        decoration: TextDecoration.none,
+                        color: Colors.black87,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Roboto',
+                      ),
+                    )),
+                const SizedBox(height: 10),
+                const Text(
+                  "Please wait while we process",
+                  style: TextStyle(
+                    decoration: TextDecoration.none,
+                    color: Colors.grey,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+        barrierDismissible: false,
+      );
       await getController.analyzeImage(File(image.path));
+      
+      // Safety check: close the dialog if it's still open
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+      
+      // Close the Camera Screen (using Navigator to be more specific than Get.back)
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
       // showDialog(
       //   context: context,
       //   builder: (_) => AlertDialog(
@@ -151,14 +244,16 @@ class _ScanCameraState extends State<ScanCamera> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text(
-                          "SCAN NOW",
-                          style: TextStyle(
-                            color: AppTheme.whiteColor,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: Obx(() => getController.loading.value
+                            ? const CircularProgressIndicator()
+                            : Text(
+                                "SCAN NOW",
+                                style: TextStyle(
+                                  color: AppTheme.whiteColor,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )),
                       ),
                     ),
                   ],

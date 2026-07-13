@@ -10,4 +10,5 @@ abstract class AppRoutesPath {
   static const String MEXICANRESTAURENTDETAILS = "/maxicanrestaurentdetails";
   static const String AIRPORTSECURITY = "/airportsecurity";
   static const String SCANCAMERA = "/scancamera";
+  static const String TEXT_DETECTION = "/textdetection";
 }

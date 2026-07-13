@@ -95,24 +95,6 @@ class _HomeState extends State<Home> {
       controller.currentPosition =
           LatLng(position.latitude, position.longitude);
     });
-    // if (status.isGranted) {
-    //   final position = await Geolocator.getCurrentPosition(
-    //     desiredAccuracy: LocationAccuracy.high,
-    //   );
-    //   SharedPreferences sharedPreferences =
-    //       await SharedPreferences.getInstance();
-    //   await sharedPreferences.setBool("@isLocation", true);
-    //   setState(() {
-    //     hasLocationPermission = true;
-    //     currentPosition = position;
-    //     controller.currentPosition =
-    //         LatLng(position.latitude, position.longitude);
-    //   });
-    // } else {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(content: Text("Location permission denied")),
-    //   );
-    // }
   }
 
   @override
@@ -146,14 +128,13 @@ class _HomeState extends State<Home> {
         width: size.width,
         height: size.height,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
               child: Stack(
                 children: [
                   Center(
                     child: isLocation == null
-                        ? Center(child: CircularProgressIndicator())
+                        ? const Center(child: CircularProgressIndicator())
                         : hasLocationPermission && currentPosition != null
                             ? GoogleMap(
                                 initialCameraPosition: CameraPosition(
@@ -221,214 +202,230 @@ class _HomeState extends State<Home> {
                           Image.asset(
                             "assets/logo.gif",
                             fit: BoxFit.contain,
-                            width: Get.width * 0.9,
+                            width: Get.width * 0.85,
                             height: Get.height * 0.1,
                             alignment: Alignment.center,
                           ),
                           GestureDetector(
                               onTap: () {
                                 if (currentUser == null) {
-                                  Get.to(() => LoginPage());
+                                  Get.to(() => const LoginPage());
                                 } else {
-                                  Get.to(() => ProfilePage());
+                                  Get.to(() => const ProfilePage());
                                 }
                               },
-                              child: Icon(Icons.account_circle, size: 30))
+                              child: const Icon(Icons.account_circle, size: 30)),
+                          const SizedBox(width: 10),
                         ],
                       ),
                     ),
                   ),
                   Positioned(
-                    bottom: 5,
+                    bottom: 25,
                     child: Container(
                       width: Get.width,
                       height: Get.height * 0.18,
-                      decoration: BoxDecoration(color: Colors.transparent),
+                      decoration: const BoxDecoration(
+                        color: Colors.transparent,
+                      ),
                       child: Obx(() {
                         if (controller.resData.isEmpty) {
-                          return SizedBox();
+                          if (controller.loading.value) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+                          return Container(
+                            alignment: Alignment.center,
+                            child: const Text("No matching places found.",
+                                style: TextStyle(color: Colors.grey)),
+                          );
                         } else {
                           return ListView.builder(
                             shrinkWrap: true,
                             scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
                             itemCount: controller.resData.length,
                             itemBuilder: (context, i) {
-                              String fullAddress = formatAddress(
-                                  controller.resData[i]['location']);
-                              bool isOpen = controller.resData[i]
-                                  ['business_hours'][0]['is_open_now'];
-
+                              final res = controller.resData[i];
                               return GestureDetector(
                                 onTap: () {
                                   Get.to(MexicanRestaurantDetails(
-                                      id: controller.resData[i]['id']));
+                                      resData: res,
+                                      id: res['place_ids']?[0] ?? ''));
                                 },
                                 child: Card(
-                                  margin: EdgeInsets.only(
-                                      left: 10, top: 10, bottom: 10, right: 10),
-                                  color: Colors.white,
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 8),
+                                  elevation: 5,
+                                  shadowColor: Colors.black26,
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10)),
+                                      borderRadius: BorderRadius.circular(20)),
+                                  color: Colors.white,
                                   child: Container(
-                                    width: Get.width * 0.93,
-                                    height: Get.height * 0.11,
+                                    width: Get.width * 0.86,
                                     decoration: BoxDecoration(
                                         color: Colors.white,
                                         borderRadius:
-                                            BorderRadius.circular(10)),
+                                            BorderRadius.circular(20)),
                                     child: Row(
                                       children: [
+                                        // Image thumbnail
                                         Container(
-                                          width: Get.width * 0.32,
-                                          height: Get.height,
+                                          width: Get.width * 0.28,
+                                          height: double.infinity,
                                           decoration: BoxDecoration(
-                                              color: Colors.white,
+                                              color: Colors.grey[100],
                                               image: DecorationImage(
-                                                  fit: BoxFit.fill,
+                                                  fit: BoxFit.cover,
                                                   image: NetworkImage(
-                                                      controller.resData[i]
-                                                          ['image_url'])),
+                                                      res['thumbnail'] ?? '')),
                                               borderRadius:
-                                                  BorderRadius.circular(10)),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
+                                                  const BorderRadius.horizontal(
+                                                      left:
+                                                          Radius.circular(20))),
+                                          child: Stack(
                                             children: [
-                                              Container(
-                                                  width: 35,
-                                                  height: 35,
-                                                  margin: EdgeInsets.only(
-                                                      top: 5, right: 5),
-                                                  decoration: BoxDecoration(
+                                              Positioned(
+                                                top: 8,
+                                                right: 8,
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.all(4),
+                                                  decoration: const BoxDecoration(
                                                       color: Colors.white,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              100)),
-                                                  child: Icon(
-                                                      Icons.favorite_border)),
+                                                      shape: BoxShape.circle),
+                                                  child: const Icon(
+                                                      Icons.favorite_border,
+                                                      size: 16,
+                                                      color: Colors.grey),
+                                                ),
+                                              ),
                                             ],
                                           ),
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                              left: 10,
-                                              top: 10,
-                                              bottom: 10,
-                                              right: 0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Container(
-                                                width: Get.width * 0.56,
-                                                color: Colors.transparent,
-                                                child: Row(
+                                        // Information section
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                12, 10, 12, 10),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment
                                                           .spaceBetween,
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
                                                   children: [
-                                                    Container(
-                                                      width: Get.width * 0.4,
+                                                    Expanded(
                                                       child: Text(
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          maxLines: 2,
-                                                          "${controller.resData[i]['name']}",
-                                                          style: TextStyle(
+                                                        "${res['title'] ?? 'Restaurant'}",
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: const TextStyle(
+                                                            color: Colors.black,
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        const Icon(
+                                                            Icons.star_rounded,
+                                                            color:
+                                                                Colors.orange,
+                                                            size: 16),
+                                                        Text(
+                                                          " ${res['rating'] ?? '4.0'}",
+                                                          style: const TextStyle(
                                                               color:
-                                                                  Colors.black,
-                                                              fontSize: 14,
+                                                                  Colors.orange,
+                                                              fontSize: 13,
                                                               fontWeight:
                                                                   FontWeight
-                                                                      .w600)),
-                                                    ),
-                                                    Text(
-                                                      "★ ${controller.resData[i]['rating']}",
-                                                      style: TextStyle(
-                                                          color: const Color
-                                                              .fromARGB(255,
-                                                              244, 179, 26),
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.w600),
+                                                                      .bold),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ],
                                                 ),
-                                              ),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Container(
-                                                    width: isOpen
-                                                        ? Get.width * 0.42
-                                                        : Get.width * 0.4,
-                                                    alignment:
-                                                        Alignment.centerLeft,
-                                                    margin:
-                                                        EdgeInsets.symmetric(
-                                                            vertical: 5),
-                                                    child: Text(
-                                                        "📞${controller.resData[i]['phone']}",
-                                                        style: TextStyle(
-                                                            color: Colors.black,
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w600)),
+                                                const SizedBox(height: 4),
+                                                Row(
+                                                  children: [
+                                                    const Icon(
+                                                        Icons.phone_outlined,
+                                                        size: 14,
+                                                        color:
+                                                            Colors.blueGrey),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      "${res['phone'] ?? 'N/A'}",
+                                                      style: const TextStyle(
+                                                          color:
+                                                              Colors.blueGrey,
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.w500),
+                                                    ),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 8),
+                                                if (res['categories'] != null)
+                                                  SingleChildScrollView(
+                                                    scrollDirection:
+                                                        Axis.horizontal,
+                                                    child: Row(
+                                                      children:
+                                                          (res['categories']
+                                                                  as List)
+                                                              .take(3)
+                                                              .map<Widget>(
+                                                                  (cat) {
+                                                        return Container(
+                                                          margin:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  right: 6),
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .symmetric(
+                                                                  horizontal:
+                                                                      10,
+                                                                  vertical: 4),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: AppTheme
+                                                                .themeColor
+                                                                .withOpacity(
+                                                                    0.1),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                          ),
+                                                          child: Text(
+                                                            cat['title'] ?? '',
+                                                            style: const TextStyle(
+                                                                color: AppTheme
+                                                                    .themeColor,
+                                                                fontSize: 9,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                        );
+                                                      }).toList(),
+                                                    ),
                                                   ),
-                                                  Container(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            vertical: 2,
-                                                            horizontal: 10),
-                                                    decoration: BoxDecoration(
-                                                        color: isOpen
-                                                            ? Colors.green
-                                                            : const Color
-                                                                .fromARGB(219,
-                                                                254, 18, 1),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(100)),
-                                                    alignment:
-                                                        Alignment.centerRight,
-                                                    margin:
-                                                        EdgeInsets.symmetric(
-                                                            vertical: 5),
-                                                    child: Text(
-                                                        isOpen
-                                                            ? "Open"
-                                                            : "Closed",
-                                                        style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w600)),
-                                                  ),
-                                                ],
-                                              ),
-                                              Container(
-                                                width: Get.width * 0.5,
-                                                margin: EdgeInsets.symmetric(
-                                                    vertical: 5),
-                                                child: Text("📍${fullAddress}",
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                        color: Colors.black,
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.w600)),
-                                              )
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        )
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -447,14 +444,6 @@ class _HomeState extends State<Home> {
             // The scan button section stays always visible
             Column(
               children: [
-                // Text(
-                //   "Scan",
-                //   textAlign: TextAlign.center,
-                //   style: TextStyle(
-                //       color: AppTheme.FontColor,
-                //       fontSize: size.width * 0.045,
-                //       fontWeight: FontWeight.w600),
-                // ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
@@ -471,7 +460,6 @@ class _HomeState extends State<Home> {
                             AppRoutesPath.SCANCAMERA,
                             arguments: cameras,
                           );
-                          // Navigate to scan screen if needed
                         },
                         child: Container(
                           width: size.width * 0.2,

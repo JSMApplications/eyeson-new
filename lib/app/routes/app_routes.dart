@@ -6,6 +6,7 @@ import 'package:eyeson/app/views/mexicanRetaurent.dart';
 import 'package:eyeson/app/views/onBoarding.dart';
 import 'package:eyeson/app/views/scanCamera.dart';
 import 'package:eyeson/app/views/splashscreen.dart';
+import 'package:eyeson/app/views/text_detection_view.dart';
 import 'package:eyeson/app/views/venueDetails.dart';
 import 'package:get/get.dart';
 part 'app_routes_path.dart';
@@ -23,8 +24,11 @@ class AppRoutes {
         name: AppRoutesPath.MEXICANRESTAURENTDETAILS,
         page: () => MexicanRestaurantDetails(
               id: "",
+              resData: {},
             )),
     GetPage(name: AppRoutesPath.AIRPORTSECURITY, page: () => AirPortSecurity()),
     GetPage(name: AppRoutesPath.SCANCAMERA, page: () => ScanCamera()),
+    GetPage(
+        name: AppRoutesPath.TEXT_DETECTION, page: () => TextDetectionView()),
   ];
 }
